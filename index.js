@@ -1,3 +1,5 @@
+var JsonApiError = require("./json_api_error");
+
 module.exports = function(db) {
   // DB methods
   var getRecords, createRecord, findRecord, updateRecord, deleteRecord;
@@ -9,88 +11,88 @@ module.exports = function(db) {
   // -- DB METHODS -- //
 
   getRecords = function(cb) {
-    db.find({}, function(err, records){
-      if (err) {
-        throw err;
-      } else { 
-        cb(records);
-      }
-    });
+    db.find({}, cb);
   };
 
   createRecord = function(data, cb) {
-    db.insert(data, function(err, record){
-      if (err) {
-        throw err;
-      } else { 
-        cb(record);
-      }
-    });
+    db.insert(data, cb);
   };
 
   findRecord = function(id, cb) {
     db.find({_id: id}, function(err, records){
-      if (err) {
-        throw err;
-      } else if (records.length) { 
-        cb(records[0]);
+      if (err || records.length) {
+        cb(err, records[0]);
       } else {
-        throw new Error("Not found!");
+        cb(new JsonApiError.NotFound());
       }
     });
   };
 
   updateRecord = function(id, record, cb) {
-    db.update({_id: id}, record, {}, function(err, numUpdated){
-      if (err) {
-        throw err;
-      } else { 
-        cb(numUpdated);
-      }
-    });
+    db.update({_id: id}, record, {}, cb);
   };
 
   deleteRecord = function(id, cb) {
-    db.remove({_id: id}, {}, function(err, numRemoved){
-      if (err) {
-        throw err;
-      } else { 
-        cb(numRemoved);
-      }
-    });
+    db.remove({_id: id}, {}, cb);
   };
 
   // -- REST ACTIONS -- //
 
   index = function(req, res){
-    getRecords(function(records){
-      res.json(records);
+    getRecords(function(err, records){
+      if (err) {
+        res.status(500).json({error: err.toString()});
+      } else {
+        res.json(records);
+      }
     });
   };
 
   create = function(req, res){
-    createRecord(req.body, function(record){
-      res.json(record);
+    createRecord(req.body, function(err, record){
+      if (err) {
+        res.status(500).json({error: err.toString()});
+      } else {
+        res.json(record);
+      }
     });
   };
 
   show = function(req, res){
-    findRecord(req.param("id"), function(record){
-      res.json(record);
+    findRecord(req.param("id"), function(err, record){
+      if (err && err instanceof JsonApiError.NotFound) {
+        res.status(404).end();
+      } else if (err) {
+        res.status(500).json({error: err.toString()});
+      } else {
+        res.json(record);
+      }
     });
   };
 
   update = function(req, res){
-    updateRecord(req.param("id"), req.body, function(record){
-      findRecord(req.param("id"), function(record){
-        res.json(record);
-      });
+    updateRecord(req.param("id"), req.body, function(err, numUpdated){
+      if (err) {
+        res.status(500).json({error: err.toString()});
+      } else {
+        findRecord(req.param("id"), function(err, record){
+          if (err) {
+            res.status(500).json({error: err.toString()});
+          } else {
+            res.json(record);
+          }
+        });
+      }
     });
   };
 
   destroy = function(req, res){
-    deleteRecord(req.param("id"), function(record){
-      res.status(200).end();
+    deleteRecord(req.param("id"), function(err, record){
+      if (err) {
+        res.status(500).json({error: err.toString()});
+      } else {
+        res.status(200).end();
+      }
     });
   };
 
@@ -105,7 +107,8 @@ module.exports = function(db) {
         create(req, res);
       break;
       default:
-        throw new Error("Don't know how to " + req.method + " collection");
+        var err = new JsonApiError.InvalidRequest("Don't know how to " + req.method + " collection");
+        res.status(500).json({error: err.toString()});
       break;
     }
   },
@@ -122,7 +125,8 @@ module.exports = function(db) {
         destroy(req, res);
       break;
       default:
-        throw new Error("Don't know how to " + req.method + " member");
+        var err = new JsonApiError.InvalidRequest("Don't know how to " + req.method + " member");
+        res.status(500).json({error: err.toString()});
       break;
     }
   }

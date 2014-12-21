@@ -123,3 +123,18 @@ describe('DELETE /:id', function () {
     expect(this.res.statusCode).to.equal(200);
   });
 });
+
+describe('GET /:id with a bad id', function () {
+  before(startServer);
+  after(stopServer);
+
+  httpUtils.save({
+    method: 'GET',
+    url: 'http://localhost:8025/data/resources/missing'
+  });
+  
+  it('response with 404', function () {
+    expect(this.err).to.equal(null);
+    expect(this.res.statusCode).to.equal(404);
+  });
+});

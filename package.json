@@ -1,6 +1,6 @@
 {
   "name": "json_api",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Simple JSON REST API for NeDB (or MongoDB)",
   "main": "index.js",
   "scripts": {
