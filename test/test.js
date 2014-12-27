@@ -6,9 +6,8 @@ var request     = require('supertest');
 var app         = express();
 var json_api    = require("../index");
 
-var server;
 var resource_id = "abcdefg";
-var store = new Datastore({ inMemoryOnly: true, autoload: true });
+var store       = new Datastore({ inMemoryOnly: true, autoload: true });
 
 app.use(bodyParser.json());
 
