@@ -19,9 +19,8 @@
   "devDependencies": {
     "express": "~4.10.6",
     "nedb": "~1.0.1",
-    "request-mocha": "~0.2.0",
-    "request": "~2.51.0",
     "body-parser": "~1.10.0",
-    "chai": "~1.10.0"
+    "chai": "~1.10.0",
+    "supertest": "~0.15.0"
   }
 }
