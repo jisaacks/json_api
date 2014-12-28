@@ -39,6 +39,32 @@ describe('JSON API', function () {
           done(err);
         });
     });
+
+    it('does not return records that do not match scope', function (done) {
+      request(app)
+        .get("/data/resources")
+        .set("Accept", "application/json")
+        .send({scope:{foo: "bam"}})
+        .end(function(err, res){
+          expect(res.statusCode).to.equal(200);
+          expect(res.body).to.be.an("array");
+          expect(res.body.length).to.equal(0);
+          done(err);
+        });
+    });
+
+    it('does return records that do match scope', function (done) {
+      request(app)
+        .get("/data/resources")
+        .set("Accept", "application/json")
+        .send({scope:{foo: "bar"}})
+        .end(function(err, res){
+          expect(res.statusCode).to.equal(200);
+          expect(res.body).to.be.an("array");
+          expect(res.body.length).to.equal(1);
+          done(err);
+        });
+    });
   });
 
   describe('GET /:id', function () {

@@ -10,8 +10,8 @@ module.exports = function(db) {
 
   // -- DB METHODS -- //
 
-  getRecords = function(cb) {
-    db.find({}, cb);
+  getRecords = function(cb, scope) {
+    db.find(scope || {}, cb);
   };
 
   createRecord = function(data, cb) {
@@ -45,7 +45,7 @@ module.exports = function(db) {
       } else {
         res.json(records);
       }
-    });
+    }, req.param("scope"));
   };
 
   create = function(req, res){
