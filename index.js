@@ -134,11 +134,15 @@ module.exports = function(db) {
   // -- THE MIDDLEWARE -- //
 
   return function(req, res, next) {
-    var rgx = /^\/([^/]*)\/?$/;
-    if ( req.url === "/" ) {
+    // Member Regex
+    var memRgx = /^\/([^/]*)\/?(?=\?|$)/;
+    // Collection Regex
+    var colRgx = /^\/(?=\?|$)/;
+
+    if ( req.url.match(colRgx) ) {
       handleCollection(req, res);
     }
-    else if ( matches = req.url.match(rgx) ) {
+    else if ( matches = req.url.match(memRgx) ) {
       req.params.id = matches[1];
       handleMember(req, res);
     }
