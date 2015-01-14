@@ -19,9 +19,9 @@ module.exports = function(db) {
   };
 
   findRecord = function(id, cb) {
-    db.find({_id: id}, function(err, records){
-      if (err || records.length) {
-        cb(err, records[0]);
+    db.findOne({_id: id}, function(err, record){
+      if (err || record) {
+        cb(err, record);
       } else {
         cb(new JsonApiError.NotFound());
       }
